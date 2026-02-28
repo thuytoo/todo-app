@@ -1,21 +1,49 @@
-const addBtn = document.getElementById('add-btn')
-const taskInput = document.getElementById('task-input')
-const taskList = document.getElementById('task-list')
+// ===== Step 1: Creat array manage task =====
+let tasks = []
 
-addBtn.addEventListener('click', () => {
-  const taskText = taskInput.value.trim()
-  if(taskText === "") return
+// ===== Step 2: Take data from localStorage when the page loads =====
+const savedTasks = localStorage.getItem("tasks")
+if (savedTasks) {
+  tasks = JSON.parse(savedTasks)
+}
 
-  const li = document.createElement('li')
-  li.textContent = taskText
+// ===== Step 3: Render tasks into  screen =====
+const taskList = document.getElementById("taskList")
 
-  const deleteBtn = document.createElement('button')
-  deleteBtn.textContent = "Delete"
-  deleteBtn.addEventListener('click', () => {
-    li.remove()
+function renderTasks() {
+  taskList.innerHTML = ""  // Delete all data before recreating
+
+  tasks.forEach((task, index) => {
+    const li = document.createElement("li")
+    li.innerText = task
+
+    // Create button delete
+    const delBtn = document.createElement("button")
+    delBtn.innerText = "Delete"
+    delBtn.onclick = () => {
+      tasks.splice(index, 1)  // Delete from array
+      localStorage.setItem("tasks", JSON.stringify(tasks))  // Save localStorage
+      renderTasks()  // Redraw the UI
+    }
+
+    li.appendChild(delBtn)
+    taskList.appendChild(li)
   })
+}
 
-  li.appendChild(deleteBtn)
-  taskList.appendChild(li)
-  taskInput.value = ""
-})
+// ===== Step 4: Add new task =====
+const input = document.getElementById("taskInput")
+const addBtn = document.getElementById("addBtn")
+
+addBtn.onclick = () => {
+  const value = input.value.trim()
+  if (value === "") return  // Do not allow adding empty tasks
+
+  tasks.push(value)  // Add to array
+  localStorage.setItem("tasks", JSON.stringify(tasks))  // Lưu vào localStorage
+  renderTasks()  // Redraw the UI
+  input.value = ""  // Delete input
+}
+
+// ===== Step 5: The first render call is made when the page loads =====
+renderTasks()
